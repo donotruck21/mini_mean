@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html ng-app="storeApp">
+<head>
+	<title>Mini MEAN Store</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+
+	<script type="text/javascript">
+		var storeApp = angular.module('storeApp', ['ngRoute']);
+
+		storeApp.config(function($routeProvider) {
+			$routeProvider
+				.when('/', {
+					templateUrl: 'partials/dashboard_partial.html'
+				})
+				.when('/dashboard', {
+					templateUrl: 'partials/dashboard_partial.html'
+				})
+				.when('/products', {
+					templateUrl: 'partials/products_partial.html'
+				})
+				.when('/orders', {
+					templateUrl: 'partials/orders_partial.html'
+				})
+				.when('/customers', {
+					templateUrl: 'partials/customers_partial.html'
+				})
+				.when('/settings', {
+					templateUrl: 'partials/settings_partial.html'
+				})
+				.otherwise({
+					redirectTo: '/'
+				})
+		});
+
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+
+		// PRODUCTS FACTORY
+		storeApp.factory('ProductFactory', function($http) {
+			var factory = {};
+			var products = [];
+
+			factory.index = function(callback) {
+		    	$http.get('/products').success(function(output) {
+		    		products = output;
+		    		callback(products)
+		    	})
+		  	}
+
+		  	factory.create = function(product, callback) {
+		  		$http.post('/products', product).success(function(output) {
+		  			callback()
+		  		})
+		  	}
+
+		  	factory.getFive = function(callback){
+		  		$http.get('/products/five').success(function(output) {
+		    		products = output;
+		    		// console.log("back in factory", products)
+		    		callback(products)
+		    	})
+		  	}
+			return factory
+		})
+
+
+		// PRODUCTS CONTROLLER
+		storeApp.controller('ProductsController', function($scope, ProductFactory) {
+			$scope.range = function(min, max, step) {
+			    step = step || 1;
+			    var input = [];
+			    for (var i = min; i <= max; i += step) {
+			        input.push(i);
+			    }
+			    return input;
+			};
+
+			var getAllProducts = function() { 
+				ProductFactory.index(function(data) {
+  					$scope.products = data;
+  				})
+			}
+
+			getAllProducts()
+
+			$scope.addProduct = function() {
+				console.log($scope.newProduct)
+				ProductFactory.create($scope.newProduct, function() {
+					console.log("made it back to front end!")
+					getAllProducts()
+					$scope.newProduct = {};
+				})
+			}
+		})
+
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+
+		// CUSTOMERS FACTORY
+		storeApp.factory('CustomerFactory', function($http) {
+			var factory = {};
+			var customers = [];
+
+			factory.index = function(callback) {
+		    	$http.get('/customers').success(function(output) {
+		    		customers = output;
+		    		callback(customers)
+		    	})
+		  	}
+
+		  	factory.create = function(info, callback) {
+		  		console.log(info)
+		  		$http.post('/customers', info).success(function(output) {
+		  			callback()
+		  		})
+		  	}
+
+		  	factory.delete = function(customer_id, callback) {
+		  		console.log("in factory delete", customer_id)
+		  		$http.delete('/customers/' + customer_id).success(function(output) {
+		  			callback()
+		  		})
+		  	}
+
+		  	factory.getThree = function(callback){
+		  		$http.get('/customers/three').success(function(output) {
+		    		customers = output;
+		    		// console.log("back in factory", customers)
+		    		callback(customers)
+		    	})
+		  	}
+			return factory
+		})
+
+
+		// CUSTOMERS CONTROLLER
+		storeApp.controller('CustomersController', function($scope, CustomerFactory) {
+
+			var getAll = function() { 
+				CustomerFactory.index(function(data) {
+  					$scope.customers = data;
+  				})
+			}
+
+			getAll()
+
+			$scope.addCustomer = function() {
+				console.log($scope.newCustomer)
+				CustomerFactory.create($scope.newCustomer, function() {
+					console.log("made it back to front end!")
+					getAll()
+		  			$scope.newCustomer = {};
+				})
+			}
+
+			$scope.deleteCustomer = function(customer_id) {
+				console.log("clicked remove btn for", customer_id)
+  				CustomerFactory.delete(customer_id, function() {
+  					getAll()
+  				})
+			}
+		})
+
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+
+		// ORDERS FACTORY
+
+		storeApp.factory('OrderFactory', function($http) {
+			var factory = {};
+			var orders = [];
+
+			factory.index = function(callback) {
+		    	$http.get('/orders').success(function(output) {
+		    		orders = output;
+		    		callback(orders)
+		    	})
+		  	}
+
+		  	factory.create = function(info, callback) {
+		  		$http.post('/orders', info).success(function(output) {
+		  			callback()
+		  		})
+		  	}
+
+		  	factory.getThree = function(callback){
+		  		$http.get('/orders/three').success(function(output) {
+		    		orders = output;
+		    		// console.log("back in factory", orders)
+		    		callback(orders)
+		    	})
+		  	}
+
+			return factory
+		})
+
+
+		// ORDERS CONTROLLER
+
+		storeApp.controller('OrdersController', function($scope, OrderFactory, CustomerFactory, ProductFactory) {
+			$scope.range = function(min, max, step) {
+			    step = step || 1;
+			    var input = [];
+			    for (var i = min; i <= max; i += step) {
+			        input.push(i);
+			    }
+			    return input;
+			};
+			var getAllProducts = function() { 
+				ProductFactory.index(function(data) {
+  					$scope.products = data;
+  				})
+			}
+
+			var getAllCustomers = function() {
+				CustomerFactory.index(function(data) {
+  					$scope.customers = data;
+  				})
+			}
+
+  			var getAllOrders = function() {
+  				OrderFactory.index(function(data) {
+  					$scope.orders = data;
+  				})
+  			}
+
+			getAllProducts()
+  			getAllCustomers();
+  			getAllOrders();
+
+
+  			$scope.addOrder = function() {
+  				OrderFactory.create($scope.newOrder, function() {
+  					getAllOrders()
+  				})
+  				$scope.newOrder = {};
+  			}
+		})
+
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
+
+		// DASHBOARD CONTROLLER
+
+		storeApp.controller('DashboardController', function($scope, OrderFactory, CustomerFactory, ProductFactory) {
+			var getFiveProducts = function() { 
+				ProductFactory.getFive(function(data) {
+  					$scope.products = data;
+  				})
+			}
+
+  			var getThreeOrders = function() {
+  				OrderFactory.getThree(function(data) {
+  					$scope.orders = data;
+  				})
+  			}
+
+			var getThreeCustomers = function() {
+				CustomerFactory.getThree(function(data) {
+  					$scope.customers = data;
+  				})
+			}
+
+			getFiveProducts();
+  			getThreeOrders();
+  			getThreeCustomers();
+
+		})
+	</script>
+
+</head>
+
+<style type="text/css">
+	.headtag{
+		font-size: 1.8em;
+		font-weight: bold;
+	}
+	.leftNav{
+		background-color: #E7E7E7;
+		border-radius: 10px;
+	}
+	.singleProduct{
+		text-align: center;
+		font-weight: bold;
+		width:185px;
+		height:185px;
+		border:1px solid gray;
+		display: inline-block;
+		box-shadow: 2px 2px 2px 0px #888888;
+		margin: 5px;
+		overflow: hidden;
+		padding: 4px;
+	}
+	.singleProduct p, .singleProduct a{
+		margin-bottom: 0;
+	}
+	.productImage{
+		height: 130px;
+	}
+	.recentProducts, .recentOrders, .recentCustomers{
+		text-align: center;
+	}
+	.showMore{
+		font-size: 1.5em;
+	}
+	.pushL{
+		text-align: left;
+		margin-left: 80px;
+		font-size: 1.2em;
+	}
+</style>
+
+<body>
+	<div class="container">
+
+		<ul class="nav nav-tabs nav-justified">
+			<li role="presentation"><a href="#/dashboard" class="headtag">Dashboard</a></li>
+		  	<li role="presentation"><a href="#/products" class="headtag">Products</a></li>
+		  	<li role="presentation"><a href="#/customers" class="headtag">Customers</a></li>
+		  	<li role="presentation"><a href="#/orders" class="headtag">Orders</a></li>
+		  	<li role="presentation"><a href="#/settings" class="headtag">Settings</a></li>
+		</ul>
+
+		<br>
+
+		<div ng-view="">
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<div ng-controller="DashboardController">
+	<h2><u>Recent Products</u></h2>
+	<div class="recentProducts">
+		<div class="singleProduct" ng-repeat="product in products">
+	      	<img ng-src="{{ product.image }}" alt="..." class="productImage">
+	    	<p>{{ product.name }}</p>
+	    	<p>({{product.quantity}} left)</p>
+	  	</div><br><br>
+	  	<a href="#/products" class="showMore">Show More...</a>
+  	</div><br><br>
+
+  	<h2><u>Recent Orders</u></h2>
+  	<div class="recentOrders">
+  		<div class="pushL">
+  			<p ng-repeat="order in orders">{{order.customer_name}} purchased {{order.quantity}} {{order.product}}(s)</p>
+  		</div>
+  		<a href="#/orders" class="showMore">Show All Orders...</a>
+  	</div><br><br>
+
+  	<h2><u>New Customers</u></h2>
+  	<div class="recentCustomers">
+  		<div class="pushL">
+  			<p ng-repeat="customer in customers">{{customer.name}} joined the store!</p>
+  		</div>
+  		<a href="#/customers" class="showMore">Show All Customers...</a>
+  	</div>
+  	<br><br><br>
+</div>

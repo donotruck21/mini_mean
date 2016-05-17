@@ -1,0 +1,54 @@
+<div ng-controller="ProductsController">
+	<div class="col-md-3 leftNav section">
+		<br>
+		<input type="text" placeholder="search products..." ng-model="filter_products.name">
+		<br><br>
+
+		<h4><u>Add a new product</u></h4><br>
+
+		<label>Name:<br>
+			<input type="text" name="product_name" ng-model="newProduct.name" >
+		</label>
+
+		<label>Image (url):<br>
+			<input type="text" name="product_image" ng-model="newProduct.image" placeholder="http://">
+		</label>
+
+		<label>Description:<br>
+			<textarea cols='20' rows='4' ng-model="newProduct.description"></textarea>
+		</label>
+
+		<label>Initial Quantity:<br>
+			<select ng-model="newProduct.quantity">
+				<option ng-repeat="n in range(1,50)">{{n}}</option>
+			</select>
+		</label>
+		<br><br>
+		<button class="btn btn-primary" style="margin-left:150px" ng-click="addProduct()">Create</button>
+		<br><br><br>
+	</div>
+
+	<div class="col-md-9 section">
+	  	<div class="singleProduct" ng-repeat="product in products | filter:filter_products">
+	      	<img ng-src="{{ product.image }}" alt="..." class="productImage">
+	    	<p>{{ product.name }}</p>
+	    	<p>({{product.quantity}} left)</p>
+	  	</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
